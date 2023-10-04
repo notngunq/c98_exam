@@ -28,4 +28,4 @@ jobs:
       run: |
         sudo apt update
         sudo apt install -y ansible
-        ansible-playbook -i ${{ secrets.SERVER_IP }}, requirement_2/deploy-playbook.yml --private-key=private_key.pem --user=ec2-user
+        ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ${{ secrets.SERVER_IP }}, requirement_2/deploy-playbook.yml --private-key=private_key.pem --user=ec2-user
