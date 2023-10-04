@@ -7,11 +7,6 @@
         name: docker
         update_cache: true
         state: present
-    # - name: Install docker-compose
-    #   get_url:
-    #     url: https://github.com/docker/compose/releases/download/1.27.4/docker-compose-Linux-{{lookup('pipe', 'uname -m')}}
-    #     dest: /usr/local/bin/docker-compose
-    #     mode: +x
     - name: Start docker daemon
       systemd:
         name: docker
@@ -39,7 +34,10 @@
     - name: Build Docker image
       command: docker build -t c98_exam_api /app/c98_exam/requirement_1
 
+    - name: Stop Docker Container
+      command: docker stop c98_exam_container
+
     - name: Run Docker container
-      command: docker run -d -p 3000:3000 c98_exam_api
+      command: docker run -d -p 3000:3000 --name c98_exam_container c98_exam_api
           # - docker-compose
 
