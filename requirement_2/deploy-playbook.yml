@@ -11,10 +11,11 @@
       systemd:
         name: docker
         state: started
-    - name: Install docker python module
+    - name: Install python modules
       pip:
         name: 
           - docker
+          - urllib3==1.26.6
     - name: Install Git
       yum:
         name: git
@@ -35,16 +36,9 @@
       command: docker build -t c98_exam_api /app/c98_exam/requirement_1
 
     - name: Stop Docker Container
-      docker_container:
-        name: c98_exam_container
-        state: stopped
-
-    - name: Remove Docker Container
-      docker_container:
-        name: c98_exam_container
-        state: absent
+      command: docker rm -f c98_exam_container 2> /dev/null || true
 
     - name: Run Docker container
-      command: docker run -d -p 3000:3000 --name c98_exam_container c98_exam_api
+      command: docker run --rm -d -p 3000:3000 --name c98_exam_container c98_exam_api
           # - docker-compose
 
