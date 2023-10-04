@@ -1,0 +1,45 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: Install Docker
+      yum:
+        name: docker
+        update_cache: true
+        state: present
+    # - name: Install docker-compose
+    #   get_url:
+    #     url: https://github.com/docker/compose/releases/download/1.27.4/docker-compose-Linux-{{lookup('pipe', 'uname -m')}}
+    #     dest: /usr/local/bin/docker-compose
+    #     mode: +x
+    - name: Start docker daemon
+      systemd:
+        name: docker
+        state: started
+    - name: Install docker python module
+      pip:
+        name: 
+          - docker
+    - name: Install Git
+      yum:
+        name: git
+        update_cache: true
+        state: present
+    - name: Config Git
+      command: git config --global --add safe.directory /app/c98_exam
+
+    - name: Clone app repository
+      git:
+        repo: https://github.com/ngunq/c98_exam.git
+        dest: /app/c98_exam
+        force: true
+        single_branch: yes
+        version: main
+
+    - name: Build Docker image
+      command: docker build -t c98_exam_api /app/c98_exam/requirement_1
+
+    - name: Run Docker container
+      command: docker run -d -p 3000:3000 c98_exam_api
+          # - docker-compose
+

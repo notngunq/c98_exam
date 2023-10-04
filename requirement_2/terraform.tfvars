@@ -1,0 +1,5 @@
+ssh_key_name = ".ssh/ssh_private_key"
+vpc_cidr_block = "10.0.0.0/16"
+subnet_cidr_block = "10.0.0.0/24"
+ec2_ami_id = "ami-0fa7190e664488b99"
+instance_type = "t2.micro"
