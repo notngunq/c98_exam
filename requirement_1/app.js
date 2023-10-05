@@ -72,18 +72,9 @@ app.post('/upload', upload.single('file'), (req, res) => {
 app.get('/files/:filename', (req, res) => {
     const { filename } = req.params;
     const filePath = path.join(__dirname, 'uploads', filename);
-
     try {
-        const stats = fs.lstatSync(filePath);
-
-        if (stats.isSymbolicLink()) {
-            const targetPath = fs.readlinkSync(filePath);
-            res.sendFile(targetPath);
-        } else if (stats.isFile()) {
-            res.sendFile(filePath);
-        } else {
-            throw new Error('Not a valid file');
-        }
+        const resolvedPath = fs.realpathSync(filePath);
+        res.sendFile(resolvedPath);
     } catch (error) {
         res.status(404).send('File not found');
     }
