@@ -117,6 +117,6 @@ resource "null_resource" "configure_server" {
     trigger = aws_instance.my-server.public_ip
   }
   provisioner "local-exec" {
-    command = "ansible-playbook --inventory ${aws_instance.my-server.public_ip}, --private-key ${var.ssh_key_name} --user ec2-user  deploy-playbook.yml"
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook --inventory ${aws_instance.my-server.public_ip}, --private-key ${var.ssh_key_name} --user ec2-user  deploy-playbook.yml"
   }
 }
