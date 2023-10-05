@@ -24,15 +24,15 @@ resource "local_file" "private_key" {
 resource "aws_vpc" "my-vpc" {
   cidr_block = var.vpc_cidr_block
   tags = {
-      Name = "my-vpc"
+    Name = "my-vpc"
   }
 }
 
 resource "aws_subnet" "my-subnet" {
-  vpc_id = aws_vpc.my-vpc.id
+  vpc_id     = aws_vpc.my-vpc.id
   cidr_block = var.subnet_cidr_block
   tags = {
-      Name = "my-subnet"
+    Name = "my-subnet"
   }
 }
 
@@ -69,25 +69,25 @@ resource "aws_security_group" "my-sg" {
 
 
 resource "aws_internet_gateway" "my-igw" {
-	vpc_id = aws_vpc.my-vpc.id
-    
-    tags = {
-     Name = "my-internet-gateway"
-   }
+  vpc_id = aws_vpc.my-vpc.id
+
+  tags = {
+    Name = "my-internet-gateway"
+  }
 }
 
 resource "aws_route_table" "my-route-table" {
-   vpc_id = aws_vpc.my-vpc.id
+  vpc_id = aws_vpc.my-vpc.id
 
-   route {
-     cidr_block = "0.0.0.0/0"
-     gateway_id = aws_internet_gateway.my-igw.id
-   }
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.my-igw.id
+  }
 
-   tags = {
-     Name = "my-route-table"
-   }
- }
+  tags = {
+    Name = "my-route-table"
+  }
+}
 
 resource "aws_route_table_association" "a-rtb-subnet" {
   subnet_id      = aws_subnet.my-subnet.id
@@ -96,7 +96,7 @@ resource "aws_route_table_association" "a-rtb-subnet" {
 
 
 output "server-ip" {
-    value = aws_instance.my-server.public_ip
+  value = aws_instance.my-server.public_ip
 }
 
 resource "aws_instance" "my-server" {
@@ -113,12 +113,10 @@ resource "aws_instance" "my-server" {
 }
 
 resource "null_resource" "configure_server" {
-    triggers = {
-      trigger = aws_instance.my-server.public_ip
-    }
-    provisioner "local-exec" {
-      # working_dir = "/home/ngunq"
-      command = "ansible-playbook --inventory ${aws_instance.my-server.public_ip}, --private-key ${var.ssh_key_name} --user ec2-user  deploy-playbook.yml"
-    
-    }
+  triggers = {
+    trigger = aws_instance.my-server.public_ip
   }
+  provisioner "local-exec" {
+    command = "ansible-playbook --inventory ${aws_instance.my-server.public_ip}, --private-key ${var.ssh_key_name} --user ec2-user  deploy-playbook.yml"
+  }
+}
