@@ -1,48 +1,101 @@
 const express = require('express');
 const multer = require('multer');
 const fs = require('fs');
+const path = require('path');
+const crypto = require('crypto');
 
 const app = express();
-const upload = multer({ dest: 'uploads/' });
 
-app.post('/upload', upload.single('file'), (req, res) => {
-    // Assuming 'file' is the field name in the form data
+// Load filesByHash from a JSON file if it exists
+let filesByHash = {};
 
-    // Access uploaded file details
-    const file = req.file;
+const FILES_BY_HASH_FILE = path.join(__dirname, 'filesByHash.json');
 
-    // Move the file to a specified location (e.g., using fs.renameSync)
-    fs.renameSync(file.path, `uploads/${file.originalname}`);
+const saveFilesByHash = () => {
+    fs.writeFileSync(FILES_BY_HASH_FILE, JSON.stringify(filesByHash), 'utf-8');
+};
 
-    res.send('File uploaded successfully');
+const loadFilesByHash = () => {
+    if (fs.existsSync(FILES_BY_HASH_FILE)) {
+        const data = fs.readFileSync(FILES_BY_HASH_FILE, 'utf-8');
+        filesByHash = JSON.parse(data);
+    }
+};
+
+loadFilesByHash();
+
+// Define storage for uploaded files
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const uploadDir = './uploads/';
+        fs.mkdirSync(uploadDir, { recursive: true });
+        cb(null, uploadDir);
+    },
+    filename: (req, file, cb) => {
+        cb(null, file.originalname);
+    }
 });
 
-app.get('/download/:filename', (req, res) => {
-    const filename = req.params.filename;
+const upload = multer({ storage });
 
-    // Check if the file exists
-    if (fs.existsSync(`uploads/${filename}`)) {
-        res.sendFile(`${__dirname}/uploads/${filename}`);
+const getFileHash = (filePath) => {
+    const hash = crypto.createHash('sha1');
+    const fileData = fs.readFileSync(filePath);
+    hash.update(fileData);
+    return hash.digest('hex');
+};
+
+// Upload a new file
+app.post('/upload', upload.single('file'), (req, res) => {
+    const { file } = req;
+
+    const fileHash = getFileHash(file.path);
+
+    if (filesByHash[fileHash]) {
+        fs.unlinkSync(file.path);
+        const existingFile = filesByHash[fileHash];
+        const symlinkPath = path.join(__dirname, 'uploads', file.originalname);
+        fs.symlinkSync(existingFile.path, symlinkPath);
+        res.send('File uploaded successfully (reused content)');
+    } else {
+        filesByHash[fileHash] = { path: file.path, name: file.originalname };
+        res.send('File uploaded successfully');
+
+        saveFilesByHash();
+    }
+});
+
+// Retrieve an uploaded file by name
+app.get('/files/:filename', (req, res) => {
+    const { filename } = req.params;
+    const filePath = path.join(__dirname, 'uploads', filename);
+
+    if (fs.existsSync(filePath)) {
+        res.sendFile(filePath);
     } else {
         res.status(404).send('File not found');
     }
 });
 
-app.delete('/delete/:filename', (req, res) => {
-    const filename = req.params.filename;
+// Delete an uploaded file by name
+app.delete('/files/:filename', (req, res) => {
+    const { filename } = req.params;
+    const filePath = path.join(__dirname, 'uploads', filename);
 
-    // Check if the file exists
-    if (fs.existsSync(`uploads/${filename}`)) {
-        // Delete the file
-        fs.unlinkSync(`uploads/${filename}`);
+    if (fs.existsSync(filePath)) {
+        const fileHash = getFileHash(filePath);
+        delete filesByHash[fileHash];
+
+        fs.unlinkSync(filePath);
+        saveFilesByHash();
         res.send('File deleted successfully');
     } else {
         res.status(404).send('File not found');
     }
 });
 
+const PORT = process.env.PORT || 3000;
 
-
-app.listen(3000, () => {
-    console.log('Server is running on port 3000');
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
 });
