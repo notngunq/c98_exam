@@ -1,3 +1,6 @@
+**/files*.json
+**/uploads
+**/tmp
 **/.ssh
 **/node_modules
 **/package-lock.json
