@@ -45,6 +45,8 @@ const getFileHash = (filePath) => {
     return hash.digest('hex');
 };
 
+app.use('/files', express.static(path.join(__dirname, 'uploads')));
+
 // Upload a new file
 app.post('/upload', upload.single('file'), (req, res) => {
     const { file } = req;
@@ -65,18 +67,23 @@ app.post('/upload', upload.single('file'), (req, res) => {
     }
 });
 
-// Retrieve an uploaded file by name
-// app.get('/files/:filename', (req, res) => {
-//     const { filename } = req.params;
-//     const filePath = path.join(__dirname, 'uploads', filename);
 
-//     if (fs.existsSync(filePath)) {
-//         res.sendFile(filePath);
-//     } else {
-//         res.status(404).send('File not found');
-//     }
-// });
-app.use('/files', express.static(path.join(__dirname, 'uploads')));
+// Retrieve an uploaded file by name
+app.get('/files/:filename', (req, res) => {
+    const { filename } = req.params;
+    const filePath = path.join(__dirname, 'uploads', filename);
+
+    if (fs.existsSync(filePath)) {
+        if (fs.lstatSync(filePath).isSymbolicLink()) {
+            const targetPath = fs.readlinkSync(filePath);
+            res.sendFile(targetPath);
+        } else {
+            res.sendFile(filePath);
+        }
+    } else {
+        res.status(404).send('File not found');
+    }
+});
 
 
 // Delete an uploaded file by name
