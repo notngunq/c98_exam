@@ -1,0 +1,134 @@
+const express = require('express');
+const multer = require('multer');
+const fs = require('fs');
+const path = require('path');
+const crypto = require('crypto');
+
+const app = express();
+
+// Load filesByHash from a JSON file if it exists
+let filesByHash = {};
+let filesMapping = {}
+
+const FILES_BY_HASH_FILE = path.join(__dirname, 'filesByHash.json');
+const FILES_MAPPING_FILE = path.join(__dirname, 'filesMapping.json');
+
+const saveFiles = (filepath, data) => {
+    fs.writeFileSync(filepath, JSON.stringify(data), 'utf-8');
+};
+
+const loadFiles = (filepath) => {
+    if (fs.existsSync(filepath)) {
+        const data = fs.readFileSync(filepath, 'utf-8');
+        return JSON.parse(data);
+    }
+    return {};
+};
+
+
+filesByHash = loadFiles(FILES_BY_HASH_FILE);
+filesMapping = loadFiles(FILES_MAPPING_FILE);
+
+// Define storage for uploaded files
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const uploadDir = './uploads/';
+        fs.mkdirSync(uploadDir, { recursive: true });
+        cb(null, uploadDir);
+    },
+    filename: (req, file, cb) => {
+        cb(null, file.originalname);
+    }
+});
+
+const upload = multer({ storage });
+
+const getFileHash = (filePath) => {
+    const hash = crypto.createHash('sha1');
+    const fileData = fs.readFileSync(filePath);
+    hash.update(fileData);
+    return hash.digest('hex');
+};
+
+// app.use('/files', express.static(path.join(__dirname, 'uploads')));
+// Upload a new file
+app.post('/uploads', upload.single('file'), (req, res) => {
+    const { file } = req;
+    const fileHash = getFileHash(file.path);
+    const fileName = file.originalname;
+
+    const existingFileWithSameName = Object.values(filesByHash).find(file => file.name === fileName);
+
+    if (existingFileWithSameName) {
+        // File with the same name already exists, overwrite it
+        // fs.unlinkSync(existingFileWithSameName.path);
+        res.send('File uploaded successfully (overwite)');
+
+    } else if (filesByHash[fileHash]) {
+        fs.unlinkSync(file.path);  // Remove the uploaded file
+
+        // File with the same content already exists, create a symbolic link
+        const existingFile = filesByHash[fileHash];
+        const symlinkPath = path.join(__dirname, 'uploads', fileName);
+        fs.symlinkSync(existingFile.path, symlinkPath);
+        res.send('File uploaded successfully (reused content)');
+    } else {
+        // File with this content doesn't exist, store it and update hash mapping
+        filesByHash[fileHash] = { path: file.path, name: fileName };
+        res.send('File uploaded successfully');
+    }
+
+    // Update the persisted fileByHash
+    saveFiles(FILES_BY_HASH_FILE, filesByHash);
+});
+
+
+
+// Retrieve an uploaded file by name
+app.get('/files/:filename', (req, res) => {
+    const { filename } = req.params;
+    const filePath = path.join(__dirname, 'uploads', filename);
+
+    try {
+        const stats = fs.lstatSync(filePath);
+        console.log(stats.isSymbolicLink())
+
+        if (stats.isSymbolicLink()) {
+            // Resolve symbolic link to the actual file
+            const targetPath = fs.readlinkSync(filePath);
+            res.sendFile(path.resolve(targetPath));
+
+        } else if (stats.isFile()) {
+            res.sendFile(filePath);
+        } else {
+            throw new Error('Not a valid file');
+        }
+    } catch (error) {
+        console.log(error)
+        res.status(404).send('File not found');
+    }
+});
+
+
+// Delete an uploaded file by name
+app.delete('/files/:filename', (req, res) => {
+    const { filename } = req.params;
+    const filePath = path.join(__dirname, 'uploads', filename);
+
+    if (fs.existsSync(filePath)) {
+        const fileHash = getFileHash(filePath);
+        delete filesByHash[fileHash];
+
+        fs.unlinkSync(filePath);
+        saveFilesByHash();
+        res.send('File deleted successfully');
+    } else {
+        res.status(404).send('File not found');
+    }
+});
+
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
