@@ -66,16 +66,18 @@ app.post('/upload', upload.single('file'), (req, res) => {
 });
 
 // Retrieve an uploaded file by name
-app.get('/files/:filename', (req, res) => {
-    const { filename } = req.params;
-    const filePath = path.join(__dirname, 'uploads', filename);
+// app.get('/files/:filename', (req, res) => {
+//     const { filename } = req.params;
+//     const filePath = path.join(__dirname, 'uploads', filename);
 
-    if (fs.existsSync(filePath)) {
-        res.sendFile(filePath);
-    } else {
-        res.status(404).send('File not found');
-    }
-});
+//     if (fs.existsSync(filePath)) {
+//         res.sendFile(filePath);
+//     } else {
+//         res.status(404).send('File not found');
+//     }
+// });
+app.use('/files', express.static(path.join(__dirname, 'uploads')));
+
 
 // Delete an uploaded file by name
 app.delete('/files/:filename', (req, res) => {
