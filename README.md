@@ -42,7 +42,7 @@ Now, REST API server started on URL: http://127.0.0.1:3000 or http://localhost:3
 - [AWS-CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
 - [Terraform](https://developer.hashicorp.com/terraform/downloads?product_intent=terraform) v1.5
 - [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html/) v2.15
-##### Installation
+#### Installation
 - Clone repository and change working directory
 ```sh
 git clone https://github.com/ngunq/c98_exam.git
