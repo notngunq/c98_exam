@@ -31,7 +31,7 @@ The output will also be: `Server running on port 3000`
 Now, REST API server started on URL: http://127.0.0.1:3000 or http://localhost:3000
 
 #### API Documentation
-- https://documenter.getpostman.com/view/8058763/2s9YJezMDQ
+- https://documenter.getpostman.com/view/8058763/2s9YJezh9q
 
 ### Requirement 2
 - Using Terraform to provision infrastructure on AWS
