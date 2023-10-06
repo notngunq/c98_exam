@@ -112,11 +112,11 @@ resource "aws_instance" "my-server" {
   }
 }
 
-resource "null_resource" "configure_server" {
-  triggers = {
-    trigger = aws_instance.my-server.public_ip
-  }
-  provisioner "local-exec" {
-    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook --inventory ${aws_instance.my-server.public_ip}, --private-key ${var.ssh_key_name} --user ec2-user  deploy-playbook.yml"
-  }
-}
+# resource "null_resource" "configure_server" {
+#   triggers = {
+#     trigger = aws_instance.my-server.public_ip
+#   }
+#   provisioner "local-exec" {
+#     command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook --inventory ${aws_instance.my-server.public_ip}, --private-key ${var.ssh_key_name} --user ec2-user  deploy-playbook.yml"
+#   }
+# }
