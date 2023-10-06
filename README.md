@@ -72,19 +72,20 @@ After init, a directory named `.terraform` contain configuration files was creat
 terraform plan
 ```
 The output will give details of the resources that will be added/changed/destroyed and we can found the summary at the bottom like: `Plan: 11 to add, 0 to change, 0 to destroy.`
-- Provision infrastructure, configure and first deployment
+- Provision infrastructure
 ```sh
 terraform apply --auto-approve
 ```
-After provisioning, a directory named `.ssh` contain SSH private key file named `ssh_private_key` was created and the REST API will also be deployed for the first time.
+After provisioning, a directory named `.ssh` contain SSH private key file named `ssh_private_key` was created
 
 At the console screen, we can find the public IP of the EC2 server that has provisioned and deployed the API like `server-ip = "13.212.20.236"`
 
-Now, we can access the REST API through URL: `http://<server-ip>:3000`
-- Using Ansible for next deployment
+- Using Ansible to deploy REST API
 ```sh
 ansible-playbook --inventory <server-ip>, --private-key .ssh/ssh_private_key --user ec2-user deploy-playbook.yml
 ```
+Now, we can access the REST API through URL: `http://<server-ip>:3000`
+
 #### CI/CD using Github Action
 First of all, you need to Fork this repository to your Github to be able to create your own Github Action Secrets
 - Config Github Action Secrets
