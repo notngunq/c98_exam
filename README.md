@@ -88,6 +88,19 @@ Now, we can access the REST API through URL: `http://<server-ip>:3000`
 
 #### CI/CD using Github Action
 First of all, you need to Fork this repository to your Github to be able to create your own Github Action Secrets
+- Update repo URL in `deploy-playbook.yml` file
+```sh
+...
+    - name: Clone app repository
+      git:
+        repo: <your forked repo URL>
+        dest: /app/c98_exam
+        force: true
+        single_branch: yes
+        version: main
+...
+
+```
 - Config Github Action Secrets
     - At your Github forked repo, access `Settings > Secrets and variables > Actions` or access link `https://github.com/<username>/<repo-name>/settings/secrets/actions`
     - Create 2 repository secrets named:
