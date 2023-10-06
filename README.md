@@ -91,8 +91,8 @@ First of all, you need to Fork this repository to your Github to be able to crea
 - Config Github Action Secrets
     - At your Github forked repo, access `Settings > Secrets and variables > Actions` or access link `https://github.com/<username>/<repo-name>/settings/secrets/actions`
     - Create 2 repository secrets named:
-        - **SSH_PRIVATE_KEY** with value is content of above provisioned `.ssh/ssh_private_key` file
-        - **SERVER_IP** with value of above provisioned `server-ip`
+        - `SSH_PRIVATE_KEY` with value is content of above provisioned `.ssh/ssh_private_key` file
+        - `SERVER_IP` with value of above provisioned `server-ip`
 - Trigger Github Workflow
     - Change to `Actions` tab on Github UI 
     - If you get a warning about available workflows on repo, just accept enable them
