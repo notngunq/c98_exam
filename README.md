@@ -82,7 +82,7 @@ At the console screen, we can find the public IP of the EC2 server that has prov
 
 - Using Ansible to deploy REST API
 ```sh
-ansible-playbook --inventory <server-ip>, --private-key .ssh/ssh_private_key --user ec2-user deploy-playbook.yml
+ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook --inventory <server-ip>, --private-key .ssh/ssh_private_key --user ec2-user deploy-playbook.yml
 ```
 Now, we can access the REST API through URL: `http://<server-ip>:3000`
 
