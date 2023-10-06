@@ -10,7 +10,7 @@ In addition, it also solves the problem of reusing the content of the same files
 
 #### Prerequisite
 - [Node.js](https://nodejs.org/) v14+
-##### Installation
+#### Installation
 - Clone repository and change working directory
 ```sh
 git clone https://github.com/ngunq/c98_exam.git
