@@ -95,6 +95,10 @@ app.post('/upload', upload.single('file'), (req, res) => {
 
     if (existingFileWithSameName) {
         const oldFileHash = getFileHash(filePath)
+        if (oldFileHash === fileHash) {
+            res.send('File uploaded successfully (overwite)');
+            return
+        }
         if (filesByHash[fileHash]) { // File exist but have same content with other file
             fs.unlinkSync(file.path);
             fs.unlinkSync(filePath);
@@ -146,9 +150,9 @@ app.get('/files/:filename', (req, res) => {
 
     // Check if the file exists
     if (fs.existsSync(filePath)) {
-        res.sendFile(filePath);
+        res.download(filePath);
     } else if (filesMapping[filename]) {
-        res.sendFile(path.resolve(filesMapping[filename]));
+        res.download(path.resolve(filesMapping[filename]));
     } else {
         res.status(404).send('File not found');
     }
