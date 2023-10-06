@@ -71,7 +71,7 @@ After init, a directory named `.terraform` contain configuration files was creat
 ```
 terraform plan
 ```
-The output will give details of the resources that will be added/changed/destroyed and we can found the summary at the bottom like: `Plan: 11 to add, 0 to change, 0 to destroy.`
+The output will give details of the resources that will be added/changed/destroyed and we can found the summary at the bottom like: `Plan: 10 to add, 0 to change, 0 to destroy.`
 - Provision infrastructure
 ```sh
 terraform apply --auto-approve
