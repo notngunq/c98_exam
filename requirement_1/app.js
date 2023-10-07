@@ -133,7 +133,7 @@ app.post('/upload', upload.single('file'), (req, res) => {
             delete filesMapping[fileName];
         filesByHash[fileHash] = { path: filePath, name: fileName };
         moveFileFromTemporary(fileName)
-        res.send('File uploaded successfully');
+        res.send('File uploaded successfully (new version)');
     }
 
     // Update the persisted data
