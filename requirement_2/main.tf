@@ -7,7 +7,7 @@ resource "tls_private_key" "rsa_4096" {
   rsa_bits  = 4096
 }
 
-resource "aws_key_pair" "my-key_pair" {
+resource "aws_key_pair" "my-key-pair" {
   key_name   = var.ssh_key_name
   public_key = tls_private_key.rsa_4096.public_key_openssh
 }
@@ -107,6 +107,11 @@ resource "aws_instance" "my-server" {
   subnet_id                   = aws_subnet.my-subnet.id
   vpc_security_group_ids      = [aws_security_group.my-sg.id]
 
+  depends_on = [
+    aws_subnet.my-subnet,
+    aws_key_pair.my-key-pair
+  ]
+
   tags = {
     Name = "my-server"
   }
@@ -116,6 +121,8 @@ resource "aws_instance" "my-server" {
 #   triggers = {
 #     trigger = aws_instance.my-server.public_ip
 #   }
+
+#   depends_on = [aws_instance.my-server]
 #   provisioner "local-exec" {
 #     command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook --inventory ${aws_instance.my-server.public_ip}, --private-key ${var.ssh_key_name} --user ec2-user  deploy-playbook.yml"
 #   }
