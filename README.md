@@ -1,5 +1,7 @@
 # C98 Exam
 This repo includes 2 requirements located in 2 separate folders respectively
+#### Prerequisite
+- [Docker](https://docs.docker.com/desktop/install/windows-install/) 
 ### Requirement 1
 The NodeJS REST API to store and retrieve files. There are 3 features:
 - Upload a new file
@@ -8,8 +10,6 @@ The NodeJS REST API to store and retrieve files. There are 3 features:
 
 In addition, it also solves the problem of reusing the content of the same files to reduce storage space
 
-#### Prerequisite
-- [Node.js](https://nodejs.org/) v14+
 #### Installation
 - Clone repository and change working directory
 ```sh
@@ -18,16 +18,10 @@ cd c98_exam/requirement_1
 ```
 - Install dependencies and start the server
 ```sh
-npm install
-npm start
-```
-The output should be like: `Server running on port 3000`
-- We can also using docker to start the server by following commands
-```sh
 docker build -t c98_exam_api .
 docker run --rm -p 3000:3000 --name c98_exam_container c98_exam_api
 ```
-The output will also be: `Server running on port 3000`
+The output will be: `Server running on port 3000`
 Now, REST API server started on URL: http://127.0.0.1:3000 or http://localhost:3000
 
 #### API Documentation
@@ -37,11 +31,6 @@ Now, REST API server started on URL: http://127.0.0.1:3000 or http://localhost:3
 - Using Terraform to provision infrastructure on AWS
 - Using Ansible to configure AWS EC2 instance and deploy REST API
 - Using Github Action for CI/CD
-
-#### Prerequisite
-- [AWS-CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
-- [Terraform](https://developer.hashicorp.com/terraform/downloads?product_intent=terraform) v1.5
-- [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html/) v2.15
   
 #### Installation
 - Clone repository and change working directory
@@ -49,19 +38,22 @@ Now, REST API server started on URL: http://127.0.0.1:3000 or http://localhost:3
 git clone https://github.com/ngunq/c98_exam.git
 cd c98_exam/requirement_2
 ```
+- Start build environment
+```sh
+docker run --rm -it -v $(pwd):/src -w /src ngunq/ansible-packer-terraform:0.2 bash
+```
 - Firstly, we need configure AWS Credential using AWS-CLI
 ```sh
 aws configure
 ```
-We have to specific information like
+We have to specific informations below
 ```
-AWS Access Key ID [****************3FUO]:
-AWS Secret Access Key [****************tUMV]: 
-Default region name [ap-southeast-1]: 
-Default output format [None]:
+AWS Access Key ID [****************3FUO]
+AWS Secret Access Key [****************tUMV] 
+Default region name [ap-southeast-1] 
+Default output format [None]
 ```
-
-*Note: Make sure `Default region name` is `ap-southeast-1`* 
+*Note: We'll run the API at Singapore region, so please make sure `Default region name` is `ap-southeast-1`* 
 - Init Terraform configuration directory
 ```
 terraform init
@@ -78,7 +70,7 @@ terraform apply --auto-approve
 ```
 After provisioning, a directory named `.ssh` contain SSH private key file named `ssh_private_key` was created
 
-At the console screen, we can find the public IP of the EC2 server that has provisioned and deployed the API like `server-ip = "13.212.20.236"`
+At the console screen, we can find the public IP of the EC2 server that has provisioned and deployed the API like `server-ip = "x.x.x.x"`
 
 - Using Ansible to deploy REST API
 ```sh
@@ -117,3 +109,15 @@ First of all, you need to Fork this repository to your Github to be able to crea
     - Change to `Actions` tab on Github UI , you can see another DeployCI workflow will trigger automatically to deploy your new code
 
 *Note: you can access to update workflow in directory `.github/workflows`*
+
+#### Release Resources
+- Destroy provisioned resources
+```sh
+terraform destroy --auto-approve
+```
+Finally, we need to free up the resources provisioned for this demo to save money
+- Stop build environment
+```sh
+exit
+```
+With option `--rm` included on startup, the environment container will be remove automatically after exit 
